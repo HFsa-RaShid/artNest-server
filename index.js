@@ -1,5 +1,7 @@
 const express = require ('express');
 const cors = require('cors');
+const exhibitions = require('./exhibition.json');
+
 require('dotenv').config();
 const { MongoClient, ServerApiVersion,ObjectId } = require('mongodb');
 const app = express();
@@ -7,6 +9,16 @@ const port = process.env.PORT || 5000;
 // middleWare
 app.use(cors());
 app.use(express.json())
+
+app.get('/exhibitions',(req, res) =>{
+  res.send(exhibitions);
+})
+app.get('/exhibitions/:id',(req, res) =>{
+  const id = parseInt(req.params.id);
+  const exhibition = exhibitions.find(exhibition => exhibition.id === id) || {};
+  res.send(exhibition);
+
+})
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.aq8mwv9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -38,22 +50,22 @@ async function run() {
 
     app.post('/art', async(req,res) =>{
         const newArt = req.body;
-        console.log('new user', newArt);
+        // console.log('new user', newArt);
         const result = await artCollection.insertOne(newArt);
         res.send(result);
     })
 
     app.get('/arts/:id', async(req,res) => {
       const id = req.params.id;
-      console.log(id);
+      // console.log(id);
       const query = { _id: new ObjectId(id) };
       const art = await artCollection.findOne(query);
       res.send(art);
     })
 
     app.get("/myArt/:email", async(req,res)=>{
-      console.log(req.params.
-        email);
+      // console.log(req.params.
+      //   email);
       const result = await artCollection.find({
         user_email: req.params.
         email}).toArray();
@@ -62,7 +74,7 @@ async function run() {
 
     app.delete('/art/:id', async(req,res) =>{
       const id = req.params.id;
-      console.log('delete from database', id);
+      // console.log('delete from database', id);
       const query = { _id: new ObjectId(id) };
       const result = await artCollection.deleteOne(query);
       res.send(result);
@@ -70,7 +82,6 @@ async function run() {
 
     app.put('/arts/:id', async(req,res) =>{
       const id = req.params.id;
-      console.log(id,user);
       const filter = { _id: new ObjectId(id) };
       const options = { upsert: true };
       const  UpdatedArt= req.body;
