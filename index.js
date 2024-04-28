@@ -1,37 +1,25 @@
-const express = require ('express');
-const cors = require('cors');
-const exhibitions = require('./exhibition.json');
-
-require('dotenv').config();
-const { MongoClient, ServerApiVersion,ObjectId } = require('mongodb');
-const app = express();
-const port = process.env.PORT || 5000;
-// middleWare
-app.use(cors());
-app.use(express.json())
-
-app.get('/exhibitions',(req, res) =>{
-  res.send(exhibitions);
-})
-app.get('/exhibitions/:id',(req, res) =>{
-  const id = parseInt(req.params.id);
-  const exhibition = exhibitions.find(exhibition => exhibition.id === id) || {};
-  res.send(exhibition);
-
-})
+    const express = require ('express');
+    const cors = require('cors');
+    require('dotenv').config();
+    const { MongoClient, ServerApiVersion,ObjectId } = require('mongodb');
+    const app = express();
+    const port = process.env.PORT || 5000;
+    // middleWare
+    app.use(cors());
+    app.use(express.json())
 
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.aq8mwv9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
-console.log(uri)
+    const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.aq8mwv9.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+    console.log(uri)
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
+    // Create a MongoClient with a MongoClientOptions object to set the Stable API version
+    const client = new MongoClient(uri, {
+      serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+      }
+    });
 
 async function run() {
   try {
@@ -40,6 +28,40 @@ async function run() {
 
     const database = client.db("artDB");
     const artCollection = database.collection("art");
+
+    const data = client.db("exhibitionsDB");
+    const exhibitionCollection = data.collection("exhibition");
+
+    const subcategory = client.db("subCategoryDB");
+    const subcategoryCollection = subcategory.collection("subCategory");
+
+    app.get('/exhibitions', async(req,res) =>{
+      const cursor = exhibitionCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+
+    })
+    app.get('/exhibitions/:id', async(req,res) => {
+      const id = req.params.id;
+      // console.log(id);
+      const query = { _id: new ObjectId(id) };
+      const exhibition = await exhibitionCollection.findOne(query);
+      res.send(exhibition);
+    })
+
+    app.get('/subCategory', async(req,res) =>{
+      const cursor = subcategoryCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+
+    })
+    app.get('/subCategory/:id', async(req,res) => {
+      const id = req.params.id;
+      // console.log(id);
+      const query = { _id: new ObjectId(id) };
+      const subcategory = await subcategoryCollection.findOne(query);
+      res.send(subcategory);
+    })
 
     app.get('/art', async(req,res) =>{
       const cursor = artCollection.find();
