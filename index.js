@@ -35,6 +35,9 @@ async function run() {
     const subcategory = client.db("subCategoryDB");
     const subcategoryCollection = subcategory.collection("subCategory");
 
+    const review = client.db("reviewDB");
+    const reviewCollection = review.collection("review");
+
     app.get('/exhibitions', async(req,res) =>{
       const cursor = exhibitionCollection.find();
       const result = await cursor.toArray();
@@ -61,6 +64,21 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const subcategory = await subcategoryCollection.findOne(query);
       res.send(subcategory);
+    })
+
+
+    app.get('/review', async(req,res) =>{
+      const cursor = reviewCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+
+    })
+    app.get('/review/:id', async(req,res) => {
+      const id = req.params.id;
+      // console.log(id);
+      const query = { _id: new ObjectId(id) };
+      const review = await reviewCollection.findOne(query);
+      res.send(review);
     })
 
     app.get('/art', async(req,res) =>{
